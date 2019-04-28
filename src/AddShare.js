@@ -23,6 +23,10 @@ export class AddShare extends Component {
   }
 
   addShare() {
+    if (this.state.shareName === '' || this.state.sharePurchasePrice === '') {
+      console.log("No share name or price, ignoring.");
+      return;
+    }
     console.log(
       "Add share",
       this.state.shareName,

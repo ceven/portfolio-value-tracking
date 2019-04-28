@@ -11,10 +11,15 @@ import config from "./config";
 class App extends Component {
   constructor(props) {
     super(props);
+
+    // TODO: fix loading data delay on startup
+    //  https://stackoverflow.com/questions/41939769/firebase-on-app-startup-taking-more-than-3-seconds-to-load-data
     Firebase.initializeApp(config);
 
     this.state = {
-      sharesList: [{ name: "ebay", value: 36 }, { name: "Amazon", value: 1850 }]
+      sharesList: [],
+      loading: true
+          // [{ name: "ebay", value: 36 }, { name: "Amazon", value: 1850 }] TODO remove sample data
     };
 
     this.handleNewShare = this.handleNewShare.bind(this);
@@ -42,20 +47,15 @@ class App extends Component {
   };
 
   componentDidMount() {
+    this.setState({
+      loading: false
+    });
     this.getShareData();
   }
-  //
-  // componentDidUpdate(prevProps, prevState) {
-  //     // check on previous state
-  //     // only write when it's different with the new state
-  //     if (prevState !== this.state) {
-  //         this.writeShareData();
-  //     }
-  // }
 
   handleNewShare = (newShareName, newSharePrice) => {
     console.log("Adding", newShareName, newSharePrice); // FIXME remove console log
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return {
         // Use updater 'return' to make state available immediately even if not rendered yet
         // https://css-tricks.com/understanding-react-setstate/
@@ -64,25 +64,18 @@ class App extends Component {
           value: newSharePrice
         })
       };
-    });
+    }, this.writeShareData);
 
-    console.log("New share", this.state.sharesList); // FIXME remove console log
-
-    this.writeShareData();
-
-    console.log("New share", this.state.sharesList); // FIXME remove console log
+    console.log("New share added, shares are now: ", this.state.sharesList); // FIXME remove console log
   };
 
   removeShare = shareName => {
     console.log("Removing", shareName); // FIXME remove console log
-    this.setState(prevState => {
-      // Use updater 'return' to make state available immediately even if not rendered yet
-      // https://css-tricks.com/understanding-react-setstate/
+    this.setState((prevState )=> {
       return {
         sharesList: prevState.sharesList.filter(s => s.name !== shareName)
       };
-    });
-    this.writeShareData();
+    }, this.writeShareData);
 
     console.log("Removed share. List is now:", this.state.sharesList); // FIXME remove console log
   };
@@ -95,11 +88,12 @@ class App extends Component {
           <h1 className="App-title">Portfolio Value Tracker</h1>
         </header>
 
-        <Body
+        {this.state.loading && <LoadingApp/>}
+        {!this.state.loading && <Body
           sharesList={this.state.sharesList}
           removeShare={this.removeShare}
           handleNewShare={this.handleNewShare}
-        />
+        />}
         <footer>
           <div>
             Icons made by{" "}
@@ -125,6 +119,12 @@ class App extends Component {
         </footer>
       </div>
     );
+  }
+}
+
+class  LoadingApp extends Component{
+  render() {
+    return (<p className="App App-body">Loading...</p>)
   }
 }
 
