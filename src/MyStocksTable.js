@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Table } from 'reactstrap';
 import { Button } from 'reactstrap';
+import './MyStocksTable.css';
 
 class RemoveShare extends Component {
     
@@ -30,24 +31,30 @@ export class MyStocksTable extends Component {
     }
 
     renderTable = () => {
-        return this.props.shares.map(share => {
-            return (
-                <Table>
+        return (
+            <div>
+                <Table className="Table">
                     <tbody>
-                        <tr>
-                            <td>{share.name}</td>
-                            <td>{share.value}</td>
-                            <td><RemoveShare name={share.name} removeShare={this.props.removeShare}/></td>
-                        </tr>
+                    {
+                        this.props.shares && this.props.shares.map(share => {
+                            return (
+                            <tr>
+                                <td>{share.name}</td>
+                                <td>{share.value}</td>
+                                <td><RemoveShare name={share.name} removeShare={this.props.removeShare}/></td>
+                            </tr>
+                            )
+                        })
+                    }
                     </tbody>
                 </Table>
-            )
-        })
+            </div>
+        )
     }
 
     render() {
         return (
-            <div>
+            <div className="MyStocksTable">
                 {this.renderTable()}
             </div>
         )
