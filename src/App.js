@@ -19,7 +19,7 @@ class App extends Component {
     this.state = {
       sharesList: [],
       loading: true
-          // [{ name: "ebay", value: 36 }, { name: "Amazon", value: 1850 }] TODO remove sample data
+          // [{ name: "ebay", purchasePrice: 36 }, { name: "Amazon", purchasePrice: 1850 }] TODO remove sample data
     };
 
     this.handleNewShare = this.handleNewShare.bind(this);
@@ -61,7 +61,7 @@ class App extends Component {
         // https://css-tricks.com/understanding-react-setstate/
         sharesList: prevState.sharesList.concat({
           name: newShareName,
-          value: newSharePrice
+          purchasePrice: newSharePrice
         })
       };
     }, this.writeShareData);

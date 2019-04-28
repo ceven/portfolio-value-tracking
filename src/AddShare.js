@@ -42,6 +42,7 @@ export class AddShare extends Component {
 
   handleNameChange(event) {
     console.log("Update event", event.target, event.target.value); //FIXME remove console log
+    // TODO use search endpoint from https://www.alphavantage.co/documentation/
     this.setState({
       shareName: event.target.value
     });

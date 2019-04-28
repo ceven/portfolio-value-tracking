@@ -40,7 +40,7 @@ export class MyStocksTable extends Component {
                             return (
                             <tr>
                                 <td>{share.name}</td>
-                                <td>{share.value}</td>
+                                <td>{share.purchasePrice}</td>
                                 <td><RemoveShare name={share.name} removeShare={this.props.removeShare}/></td>
                             </tr>
                             )
