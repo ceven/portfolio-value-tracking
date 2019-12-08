@@ -8,18 +8,22 @@ import { MyStocksTable } from "./MyStocksTable";
 import Firebase from "firebase";
 import config from "./config";
 
+// NB: Treat React DS as immutable
+// when updating state, always do a deep copy first
+// V. good post: https://www.robinwieruch.de/react-state-array-add-update-remove
+
+const DEFAULT_PORTFOLIO_PATH = '/shares/default_user/default_portfolio/';
+
 class App extends Component {
   constructor(props) {
     super(props);
 
-    // TODO: fix loading data delay on startup
     //  https://stackoverflow.com/questions/41939769/firebase-on-app-startup-taking-more-than-3-seconds-to-load-data
     Firebase.initializeApp(config);
 
     this.state = {
-      sharesList: [],
+      portfolioShares: null,
       loading: true
-          // [{ name: "ebay", purchasePrice: 36 }, { name: "Amazon", purchasePrice: 1850 }] TODO remove sample data
     };
 
     this.handleNewShare = this.handleNewShare.bind(this);
@@ -27,22 +31,51 @@ class App extends Component {
   }
 
   writeShareData = () => {
-    console.log("about to overwrite firebase with: ", this.state.sharesList);
+    console.log("about to overwrite firebase with: ", this.state.portfolioShares);
     Firebase.database()
-      .ref("/shares")
-      .set(this.state.sharesList);
-    console.log("DATA SAVED", this.state.sharesList);
+      .ref(DEFAULT_PORTFOLIO_PATH)
+      .set(this.state.portfolioShares)
+      .then(function (){
+        console.log("DATA SAVED");
+      });
+  };
+
+  writeSingleShare = (share) => {
+    console.log("about to add share: ", share);
+    Firebase.database()
+      .ref(DEFAULT_PORTFOLIO_PATH + share.name)
+      .set(share)
+      .then(function (){
+        console.log("SINGLE SHARE SAVED " + share.toString());
+      });
+  };
+
+  deleteDbShare = (shareName) => {
+    console.log("about to remove share: ", shareName);
+    Firebase.database()
+      .ref(DEFAULT_PORTFOLIO_PATH + shareName)
+      .remove()
+      .then(function() {
+        console.log("SHARE REMOVED ", shareName)
+      })
   };
 
   getShareData = () => {
-    let ref = Firebase.database().ref("/shares");
+    let ref = Firebase.database().ref(DEFAULT_PORTFOLIO_PATH);
     ref.on("value", snapshot => {
-      const shares = snapshot.val() || [];
-      console.log("DATA RETRIEVED", shares);
-      this.setState({
-        sharesList: shares
+      let fShares = snapshot.val() || {};
+      this.setState(() => {
+        let shares = new Map(); // FIXME couldn't find a simple way to populate Map()
+        Object.keys(fShares).forEach((key) => {
+          shares.set(fShares[key].name, fShares[key])
+        });
+        console.log("DATA RETRIEVED ", shares);
+        return {
+          portfolioShares: shares
+        }
+      }, () => {
+        console.log("SHARES ", this.props.portfolioShares);
       });
-      console.log("DATA UPDATED after retrieval", this.state.sharesList);
     });
   };
 
@@ -53,31 +86,37 @@ class App extends Component {
     this.getShareData();
   }
 
-  handleNewShare = (newShareName, newSharePrice) => {
-    console.log("Adding", newShareName, newSharePrice); // FIXME remove console log
+  handleNewShare = (newShareName, newSharePrice, purchaseDate) => {
+    let newShare = {
+      name: newShareName,
+      purchasePrice: newSharePrice,
+      purchaseDate: purchaseDate
+    };
+    console.log("Adding", newShare); // FIXME remove console logs
     this.setState((prevState) => {
+      const m = new Map(prevState.portfolioShares);
+      m.set(newShare.name, newShare);
       return {
         // Use updater 'return' to make state available immediately even if not rendered yet
         // https://css-tricks.com/understanding-react-setstate/
-        sharesList: prevState.sharesList.concat({
-          name: newShareName,
-          purchasePrice: newSharePrice
-        })
-      };
-    }, this.writeShareData);
+        portfolioShares: m
+      }
+    }, this.writeSingleShare(newShare));
 
-    console.log("New share added, shares are now: ", this.state.sharesList); // FIXME remove console log
+    console.log("New share added, shares are now: ", this.state.portfolioShares); // FIXME remove console log
   };
 
   removeShare = shareName => {
     console.log("Removing", shareName); // FIXME remove console log
-    this.setState((prevState )=> {
+    this.setState((prevState ) => {
+      const m = new Map(prevState.portfolioShares);
+      m.delete(shareName);
       return {
-        sharesList: prevState.sharesList.filter(s => s.name !== shareName)
+        portfolioShares: m
       };
-    }, this.writeShareData);
+    }, this.deleteDbShare(shareName));
 
-    console.log("Removed share. List is now:", this.state.sharesList); // FIXME remove console log
+    console.log("Removed share. List is now:", this.state.portfolioShares); // FIXME remove console log
   };
 
   render() {
@@ -90,7 +129,7 @@ class App extends Component {
 
         {this.state.loading && <LoadingApp/>}
         {!this.state.loading && <Body
-          sharesList={this.state.sharesList}
+          portfolioShares={this.state.portfolioShares}
           removeShare={this.removeShare}
           handleNewShare={this.handleNewShare}
         />}
@@ -120,6 +159,7 @@ class App extends Component {
       </div>
     );
   }
+
 }
 
 class  LoadingApp extends Component{
@@ -138,7 +178,7 @@ class Body extends Component {
       <p className="App App-body">
         <AddShare newShare={this.props.handleNewShare} />
         <MyStocksTable
-          shares={this.props.sharesList}
+          shares={this.props.portfolioShares}
           removeShare={this.props.removeShare}
         />
         {/* // <MyStockValueGraph /> */}

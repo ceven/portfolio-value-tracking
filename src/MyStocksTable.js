@@ -36,16 +36,19 @@ export class MyStocksTable extends Component {
                 <Table className="Table">
                     <tbody>
                     {
-                        this.props.shares && this.props.shares.map(share => {
+                        this.props.shares && Array.from(this.props.shares.values()).map(share => {
                             return (
                             <tr>
                                 <td>{share.name}</td>
                                 <td>{share.purchasePrice}</td>
+                                <td>{share.purchaseDate}</td>
                                 <td><RemoveShare name={share.name} removeShare={this.props.removeShare}/></td>
                             </tr>
                             )
                         })
                     }
+                    {this.props.shares && console.info("Map "+this.props.shares.size + " array " + Array.from(this.props.shares.values()))}
+                    {!this.props.shares && console.warn("no shares")}
                     </tbody>
                 </Table>
             </div>

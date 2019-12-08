@@ -12,7 +12,8 @@ export class AddShare extends Component {
     this.state = {
       action: "none",
       shareName: "",
-      sharePurchasePrice: 0
+      sharePurchasePrice: 0,
+      sharePurchaseDate: null
     };
   }
 
@@ -27,17 +28,28 @@ export class AddShare extends Component {
       console.log("No share name or price, ignoring.");
       return;
     }
+    let d = this.state.sharePurchaseDate;
+    if (d == null || d === "") {
+      d = AddShare.currentDate()
+    }
     console.log(
       "Add share",
       this.state.shareName,
-      this.state.sharePurchasePrice
+      this.state.sharePurchasePrice,
+      d
     ); //FIXME remove console log
-    this.props.newShare(this.state.shareName, this.state.sharePurchasePrice);
+    this.props.newShare(this.state.shareName, this.state.sharePurchasePrice, d);
     this.setState({
       action: "none",
       shareName: "",
-      sharePurchasePrice: 0
+      sharePurchasePrice: 0,
+      sharePurchaseDate: ""
     });
+  }
+
+  static currentDate() {
+    let now = new Date();
+    return now.toLocaleDateString();
   }
 
   handleNameChange(event) {
