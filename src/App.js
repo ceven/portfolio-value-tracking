@@ -46,20 +46,24 @@ class App extends Component {
   writeSingleShare = (share) => {
     console.log("about to add share: ", share);
     Firebase.database()
-      .ref(DEFAULT_PORTFOLIO_PATH + share.name)
+      .ref(App.getFirebasePath(share))
       .set(share)
       .then(function (){
-        console.log("SINGLE SHARE SAVED " + share.toString());
+        console.log("SINGLE SHARE SAVED ", share.toString());
       });
   };
 
-  deleteDbShare = (shareName) => {
-    console.log("about to remove share: ", shareName);
+  static getFirebasePath(share) {
+    return DEFAULT_PORTFOLIO_PATH + share.name;
+  }
+
+  deleteDbShare = (share) => {
+    console.log("about to remove share: ", share);
     Firebase.database()
-      .ref(DEFAULT_PORTFOLIO_PATH + shareName)
+      .ref(App.getFirebasePath(share))
       .remove()
       .then(function() {
-        console.log("SHARE REMOVED ", shareName)
+        console.log("SHARE REMOVED ", share)
       })
   };
 
@@ -109,38 +113,38 @@ class App extends Component {
     console.log("New share added, shares are now: ", this.state.portfolioShares); // FIXME remove console log
   };
 
-  removeShare = shareName => {
-    console.log("Removing", shareName); // FIXME remove console log
+  removeShare = share => {
+    console.log("Removing", share); // FIXME remove console log
     this.setState((prevState ) => {
       const m = new Map(prevState.portfolioShares);
-      m.delete(shareName);
+      m.delete(share.name);
       return {
         portfolioShares: m
       };
-    }, this.deleteDbShare(shareName));
+    }, this.deleteDbShare(share));
 
     console.log("Removed share. List is now:", this.state.portfolioShares); // FIXME remove console log
   };
 
-  editShare = (shareName, newValues) => {
-    console.log("Updating share with new vals", shareName, newValues);
-    let updatedShare = this.state.portfolioShares.get(shareName);
+  editShare = (share, newValues) => {
+    console.log("Updating share with new vals", share, newValues);
+    let updatedShare = this.state.portfolioShares.get(share.name);
     Object.keys(newValues).forEach(function(k) {
       updatedShare[k] = newValues[k]
     });
 
     this.setState((prevState) => {
       const m = new Map(prevState.portfolioShares);
-      if (newValues.name && newValues.name !== shareName) {
-        m.delete(shareName);
+      if (newValues.name && newValues.name !== share.name) {
+        m.delete(share.name);
       }
       m.set(newValues.name, updatedShare);
       return {
         portfolioShares: m
       };
     }, () => {
-      if (newValues.name && newValues.name !== shareName) {
-        this.deleteDbShare(shareName);
+      if (newValues.name && newValues.name !== share.name) {
+        this.deleteDbShare(share);
       }
       this.writeSingleShare(updatedShare);
       console.info("Done editing", updatedShare)

@@ -18,7 +18,7 @@ class MyStocksTableRow extends Component {
   saveUpdatedShare = (event, values) => {
     this.toggleEditShare();
     console.info("EDITING ",event, values, this.props.share);
-    this.props.editShare(this.props.share.name, values);
+    this.props.editShare(this.props.share, values);
   };
 
   toggleEditShare = () => {
@@ -45,7 +45,7 @@ class MyStocksTableRow extends Component {
           {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="soldDate" defaultValue={this.props.share.soldDate} /></AvForm></td> : <td>{this.props.share.soldDate}</td>}
           {<td>{this.computeProfit()}</td>}
           <td><Button color="info" onClick={this.toggleEditShare}>{this.state.editing ? 'Cancel'  : 'Edit'}</Button></td>
-          <td><RemoveShare name={this.props.share.name} removeShare={this.props.removeShare}/></td>
+          <td><RemoveShare share={this.props.share} removeShare={this.props.removeShare}/></td>
         </tr>
     )
   }
@@ -104,7 +104,7 @@ class RemoveShare extends Component {
     }
 
     removeShare() {
-        this.props.removeShare(this.props.name)
+        this.props.removeShare(this.props.share)
     }
 
     render() {

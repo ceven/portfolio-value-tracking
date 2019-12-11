@@ -88,6 +88,7 @@ export class AddShare extends Component {
           </Button>
         )}
         {this.state.action === "add" && (
+          // FIXME change to form and automatically map form name to DB keys
           <div>
             <input
               type="text"
