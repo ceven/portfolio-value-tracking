@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import { Button } from "reactstrap";
 
 export class AddShare extends Component {
+
+  newShare;
+
   constructor(props) {
     super(props);
     this.addShareForm = this.addShareForm.bind(this);
@@ -55,8 +58,10 @@ export class AddShare extends Component {
   handleNameChange(event) {
     console.log("Update event", event.target, event.target.value); //FIXME remove console log
     // TODO use search endpoint from https://www.alphavantage.co/documentation/
+
     this.setState({
-      shareName: event.target.value
+      shareName: event.target.value,
+      shareSymbolOptions: {}
     });
   }
 

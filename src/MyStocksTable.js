@@ -27,6 +27,12 @@ class MyStocksTableRow extends Component {
     }));
   };
 
+  computeProfit() {
+    if (this.props.share.purchasePrice && this.props.share.soldPrice && this.props.share.quantity) {
+      return parseFloat(this.props.share.quantity * (this.props.share.soldPrice - this.props.share.purchasePrice)).toFixed(2)
+    }
+  }
+
   render() {
     return (
         <tr>
@@ -34,12 +40,16 @@ class MyStocksTableRow extends Component {
           {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="name" defaultValue={this.props.share.name} /></AvForm></td> : <td>{this.props.share.name}</td>}
           {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="purchasePrice" defaultValue={this.props.share.purchasePrice} /></AvForm></td> : <td>{this.props.share.purchasePrice}</td>}
           {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="purchaseDate" defaultValue={this.props.share.purchaseDate} /></AvForm></td> : <td>{this.props.share.purchaseDate}</td>}
+          {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="quantity" defaultValue={this.props.share.quantity} /></AvForm></td> : <td>{this.props.share.quantity}</td>}
+          {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="soldPrice" defaultValue={this.props.share.soldPrice} /></AvForm></td> : <td>{this.props.share.soldPrice}</td>}
           {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="soldDate" defaultValue={this.props.share.soldDate} /></AvForm></td> : <td>{this.props.share.soldDate}</td>}
+          {<td>{this.computeProfit()}</td>}
           <td><Button color="info" onClick={this.toggleEditShare}>{this.state.editing ? 'Cancel'  : 'Edit'}</Button></td>
           <td><RemoveShare name={this.props.share.name} removeShare={this.props.removeShare}/></td>
         </tr>
     )
   }
+
 }
 
 class RemoveShare extends Component {
@@ -79,10 +89,10 @@ export class MyStocksTable extends Component {
                         <th>Name</th>
                         <th>Purchase price</th>
                         <th>Purchase date</th>
+                        <th>Quantity</th>
+                        <th>Sold price</th>
                         <th>Sold date</th>
-                        <th/>
-                        <th/>
-                        <th/>
+                        <th>Profit</th>
                       </tr>
                     </thead>
                     <tbody>

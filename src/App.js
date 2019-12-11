@@ -14,6 +14,9 @@ import config from "./config";
 
 const DEFAULT_PORTFOLIO_PATH = '/shares/default_user/default_portfolio/';
 
+// TODO currently each share is indexed by name
+//  need unique key e.g. append current timestamp to name so can add several records for same share name
+
 class App extends Component {
   constructor(props) {
     super(props);
