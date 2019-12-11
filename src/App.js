@@ -54,7 +54,14 @@ class App extends Component {
   };
 
   static getFirebasePath(share) {
-    return DEFAULT_PORTFOLIO_PATH + share.name;
+    return DEFAULT_PORTFOLIO_PATH + App.getShareKey(share);
+  }
+
+  static getShareKey(share) {
+    if (share.key) {
+      return share.key
+    }
+    return share.name; // Backwards compatibility for old keys
   }
 
   deleteDbShare = (share) => {
@@ -74,7 +81,7 @@ class App extends Component {
       this.setState(() => {
         let shares = new Map(); // FIXME couldn't find a simple way to populate Map()
         Object.keys(fShares).forEach((key) => {
-          shares.set(fShares[key].name, fShares[key])
+          shares.set(App.getShareKey(fShares[key]), fShares[key])
         });
         console.log("DATA RETRIEVED ", shares);
         return {
@@ -96,13 +103,14 @@ class App extends Component {
   handleNewShare = (newShareName, newSharePrice, purchaseDate) => {
     let newShare = {
       name: newShareName,
+      key: App.createUniqueKey(newShareName),
       purchasePrice: newSharePrice,
       purchaseDate: purchaseDate
     };
     console.log("Adding", newShare); // FIXME remove console logs
     this.setState((prevState) => {
       const m = new Map(prevState.portfolioShares);
-      m.set(newShare.name, newShare);
+      m.set(App.getShareKey(newShare), newShare);
       return {
         // Use updater 'return' to make state available immediately even if not rendered yet
         // https://css-tricks.com/understanding-react-setstate/
@@ -113,11 +121,15 @@ class App extends Component {
     console.log("New share added, shares are now: ", this.state.portfolioShares); // FIXME remove console log
   };
 
+  static createUniqueKey(baseName) {
+    return baseName + "_" + Date.now()
+  }
+
   removeShare = share => {
     console.log("Removing", share); // FIXME remove console log
     this.setState((prevState ) => {
       const m = new Map(prevState.portfolioShares);
-      m.delete(share.name);
+      m.delete(App.getShareKey(share));
       return {
         portfolioShares: m
       };
@@ -128,23 +140,24 @@ class App extends Component {
 
   editShare = (share, newValues) => {
     console.log("Updating share with new vals", share, newValues);
-    let updatedShare = this.state.portfolioShares.get(share.name);
+    let updatedShare = this.state.portfolioShares.get(App.getShareKey(share));
     Object.keys(newValues).forEach(function(k) {
       updatedShare[k] = newValues[k]
     });
 
     this.setState((prevState) => {
       const m = new Map(prevState.portfolioShares);
-      if (newValues.name && newValues.name !== share.name) {
-        m.delete(share.name);
+      if (updatedShare.name !== share.name) {
+        m.delete(App.getShareKey(share));
+        updatedShare.key = App.createUniqueKey(updatedShare.name)
       }
-      m.set(newValues.name, updatedShare);
+      m.set(App.getShareKey(updatedShare), updatedShare);
       return {
         portfolioShares: m
       };
     }, () => {
-      if (newValues.name && newValues.name !== share.name) {
-        this.deleteDbShare(share);
+      if (updatedShare.name !== share.name) {
+        this.deleteDbShare(App.getShareKey(share));
       }
       this.writeSingleShare(updatedShare);
       console.info("Done editing", updatedShare)

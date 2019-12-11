@@ -142,7 +142,7 @@ export class MyStocksTable extends Component {
                     <tbody>
                     {
                         this.props.shares && Array.from(this.props.shares.values()).map(share => {
-                            return <MyStocksTableRow key={share.name} share={share} editShare={this.props.editShare} removeShare={this.props.removeShare}/>
+                            return <MyStocksTableRow key={share.key} share={share} editShare={this.props.editShare} removeShare={this.props.removeShare}/>
                         })
                     }
                     {<MyStocksTableSummary shares={this.props.shares}/>}
