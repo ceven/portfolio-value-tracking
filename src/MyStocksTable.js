@@ -52,6 +52,50 @@ class MyStocksTableRow extends Component {
 
 }
 
+class MyStocksTableSummary extends Component {
+
+  shares;
+
+  constructor(props) {
+    super(props);
+  }
+
+  render () {
+    return (
+      <tr>
+        <td>Total</td>
+        <td/>
+        <td/>
+        <td/>
+        <td/>
+        <td/>
+        <td>{this.sumProfit()}</td>
+        <td/>
+        <td/>
+      </tr>
+    )
+  }
+
+  static computeProfit(share) {
+    if (share.purchasePrice && share.soldPrice && share.quantity) {
+      return parseFloat(share.quantity * (share.soldPrice - share.purchasePrice))
+    }
+  }
+
+  sumProfit = () => {
+    let profit = 0;
+    if (this.props.shares) {
+      Array.from(this.props.shares.values()).forEach(share => {
+        let shareProfit = MyStocksTableSummary.computeProfit(share);
+        if (shareProfit && !isNaN(shareProfit)) {
+          profit += shareProfit
+        }
+      })
+    }
+    return profit.toFixed(2)
+  }
+}
+
 class RemoveShare extends Component {
     
     constructor(props) {
@@ -101,6 +145,7 @@ export class MyStocksTable extends Component {
                             return <MyStocksTableRow key={share.name} share={share} editShare={this.props.editShare} removeShare={this.props.removeShare}/>
                         })
                     }
+                    {<MyStocksTableSummary shares={this.props.shares}/>}
                     {this.props.shares && console.info("Map "+this.props.shares.size + " array " + Array.from(this.props.shares.values()))}
                     {!this.props.shares && console.warn("no shares")}
                     </tbody>
