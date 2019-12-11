@@ -119,6 +119,31 @@ class App extends Component {
     console.log("Removed share. List is now:", this.state.portfolioShares); // FIXME remove console log
   };
 
+  editShare = (shareName, newValues) => {
+    console.log("Updating share with new vals", shareName, newValues);
+    let updatedShare = this.state.portfolioShares.get(shareName);
+    Object.keys(newValues).forEach(function(k) {
+      updatedShare[k] = newValues[k]
+    });
+
+    this.setState((prevState) => {
+      const m = new Map(prevState.portfolioShares);
+      if (newValues.name && newValues.name !== shareName) {
+        m.delete(shareName);
+      }
+      m.set(newValues.name, updatedShare);
+      return {
+        portfolioShares: m
+      };
+    }, () => {
+      if (newValues.name && newValues.name !== shareName) {
+        this.deleteDbShare(shareName);
+      }
+      this.writeSingleShare(updatedShare);
+      console.info("Done editing", updatedShare)
+    });
+  };
+
   render() {
     return (
       <div className="App">
@@ -131,6 +156,7 @@ class App extends Component {
         {!this.state.loading && <Body
           portfolioShares={this.state.portfolioShares}
           removeShare={this.removeShare}
+          editShare={this.editShare}
           handleNewShare={this.handleNewShare}
         />}
         <footer>
@@ -175,14 +201,15 @@ class Body extends Component {
 
   render() {
     return (
-      <p className="App App-body">
+      <div className="App App-body">
         <AddShare newShare={this.props.handleNewShare} />
         <MyStocksTable
           shares={this.props.portfolioShares}
           removeShare={this.props.removeShare}
+          editShare={this.props.editShare}
         />
         {/* // <MyStockValueGraph /> */}
-      </p>
+      </div>
     );
   }
 }
