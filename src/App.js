@@ -81,6 +81,9 @@ class App extends Component {
       this.setState(() => {
         let shares = new Map(); // FIXME couldn't find a simple way to populate Map()
         Object.keys(fShares).forEach((key) => {
+          if (!fShares[key].key) {
+            fShares[key].key = fShares[key].name
+          }
           shares.set(App.getShareKey(fShares[key]), fShares[key])
         });
         console.log("DATA RETRIEVED ", shares);
