@@ -115,22 +115,26 @@ export class AddShare extends Component {
           </Button>
         )}
         {this.state.action === "add" && (
-          <div>
-            Add share:
-            <AvForm onValidSubmit={this.addShare}>
-              <AvGroup>
-                <Label for="name">Name</Label>
-                <AvInput name="name" id="name" defaultValue={this.state.share.name} onChange={this.handleNameChange} required/>
-              </AvGroup>
-              <AvGroup>
-                <Label for="price">Purchase price</Label>
-                <AvInput name="purchasePrice" id="price" defaultValue={this.state.share.purchasePrice} onChange={this.handlePriceChange} required/>
-              </AvGroup>
-              <FormGroup><Button color="success">Confirm</Button></FormGroup>
-              <Button color="danger" onClick={this.cancelAddShare}>
-                Cancel
-              </Button>
-            </AvForm>
+          <div className="App App-add-share">
+              <AvForm onValidSubmit={this.addShare}>
+                <h2>New share details</h2>
+                <AvGroup row>
+                  <Label for="name">Name</Label>
+                  <AvInput name="name" id="name" defaultValue={this.state.share.name} onChange={this.handleNameChange} required/>
+                </AvGroup>
+                <AvGroup row>
+                  <Label for="price">Purchase price</Label>
+                  <AvInput name="purchasePrice" id="price" defaultValue={this.state.share.purchasePrice} onChange={this.handlePriceChange} required/>
+                </AvGroup>
+                <div className="App App-add-share-button">
+                <FormGroup>
+                  <Button color="success">Confirm</Button>
+                  &nbsp;
+                  <Button color="danger" onClick={this.cancelAddShare}>Cancel</Button>
+                </FormGroup>
+                {/*<FormGroup></FormGroup>*/}
+                </div>
+              </AvForm>
           </div>
         )}
       </div>
