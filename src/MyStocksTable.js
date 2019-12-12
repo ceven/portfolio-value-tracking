@@ -38,6 +38,7 @@ class MyStocksTableRow extends Component {
         <tr>
           {/* FIXME: edit all vals at once? currently one by one. edit example: https://stackblitz.com/edit/reactstrap-v5-tyjxxh?file=Example.js */}
           {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="name" defaultValue={this.props.share.name} /></AvForm></td> : <td>{this.props.share.name}</td>}
+          {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="symbol" defaultValue={this.props.share.symbol} /></AvForm></td> : <td>{this.props.share.symbol}</td>}
           {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="purchasePrice" defaultValue={this.props.share.purchasePrice} /></AvForm></td> : <td>{this.props.share.purchasePrice}</td>}
           {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="purchaseDate" defaultValue={this.props.share.purchaseDate} /></AvForm></td> : <td>{this.props.share.purchaseDate}</td>}
           {this.state.editing ? <td><AvForm onValidSubmit={this.saveUpdatedShare}> <AvInput name="quantity" defaultValue={this.props.share.quantity} /></AvForm></td> : <td>{this.props.share.quantity}</td>}
@@ -64,6 +65,7 @@ class MyStocksTableSummary extends Component {
     return (
       <tr>
         <td>Total</td>
+        <td/>
         <td/>
         <td/>
         <td/>
@@ -131,6 +133,7 @@ export class MyStocksTable extends Component {
                     <thead>
                       <tr>
                         <th>Name</th>
+                        <th>Symbol</th>
                         <th>Purchase price</th>
                         <th>Purchase date</th>
                         <th>Quantity</th>

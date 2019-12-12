@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Button } from "reactstrap";
+import axios from "axios";
 
 export class AddShare extends Component {
 
@@ -35,19 +36,34 @@ export class AddShare extends Component {
     if (d == null || d === "") {
       d = AddShare.currentDate()
     }
-    console.log(
-      "Add share",
-      this.state.shareName,
-      this.state.sharePurchasePrice,
-      d
-    ); //FIXME remove console log
-    this.props.newShare(this.state.shareName, this.state.sharePurchasePrice, d);
-    this.setState({
-      action: "none",
-      shareName: "",
-      sharePurchasePrice: 0,
-      sharePurchaseDate: ""
-    });
+    let apiKey = this.props.alphavantage['apiKey'];
+    let searchNameUrl = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=" + this.state.shareName + "&apikey=" + apiKey;
+    let bestMatch = null;
+    axios.get(searchNameUrl).then(res => {
+      console.log(res.data.bestMatches);
+      if (res && res.data && res.data.bestMatches && res.data.bestMatches.length > 0) {
+        bestMatch = res.data.bestMatches[0];
+        console.log("BEST SHARE MATCH = ", bestMatch);
+        return bestMatch
+      }
+      return null
+    }).then(bestMatch => {
+      console.log(
+        "Add share",
+        this.state.shareName,
+        this.state.sharePurchasePrice,
+        d,
+        bestMatch
+      ); //FIXME remove console log
+      this.props.newShare(this.state.shareName, this.state.sharePurchasePrice, d, bestMatch);
+      this.setState({
+        action: "none",
+        shareName: "",
+        sharePurchasePrice: 0,
+        sharePurchaseDate: ""
+      });
+    })
+
   }
 
   static currentDate() {
@@ -58,10 +74,8 @@ export class AddShare extends Component {
   handleNameChange(event) {
     console.log("Update event", event.target, event.target.value); //FIXME remove console log
     // TODO use search endpoint from https://www.alphavantage.co/documentation/
-
     this.setState({
-      shareName: event.target.value,
-      shareSymbolOptions: {}
+      shareName: event.target.value
     });
   }
 

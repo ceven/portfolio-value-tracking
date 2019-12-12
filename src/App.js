@@ -29,6 +29,8 @@ class App extends Component {
       loading: true
     };
 
+    this.config = config;
+
     this.handleNewShare = this.handleNewShare.bind(this);
     this.removeShare = this.removeShare.bind(this);
   }
@@ -103,13 +105,16 @@ class App extends Component {
     this.getShareData();
   }
 
-  handleNewShare = (newShareName, newSharePrice, purchaseDate) => {
+  handleNewShare = (newShareName, newSharePrice, purchaseDate, bestShareMatch) => {
     let newShare = {
       name: newShareName,
       key: App.createUniqueKey(newShareName),
       purchasePrice: newSharePrice,
       purchaseDate: purchaseDate
     };
+    if (bestShareMatch) {
+      newShare.symbol = bestShareMatch["1. symbol"]
+    }
     console.log("Adding", newShare); // FIXME remove console logs
     this.setState((prevState) => {
       const m = new Map(prevState.portfolioShares);
@@ -181,6 +186,7 @@ class App extends Component {
           removeShare={this.removeShare}
           editShare={this.editShare}
           handleNewShare={this.handleNewShare}
+          alphavantage={this.config.alphavantage}
         />}
         <footer>
           <div>
@@ -225,7 +231,7 @@ class Body extends Component {
   render() {
     return (
       <div className="App App-body">
-        <AddShare newShare={this.props.handleNewShare} />
+        <AddShare newShare={this.props.handleNewShare} alphavantage={this.props.alphavantage} />
         <MyStocksTable
           shares={this.props.portfolioShares}
           removeShare={this.props.removeShare}
