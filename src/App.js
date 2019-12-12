@@ -6,7 +6,7 @@ import { AddShare } from "./AddShare";
 import { MyStocksTable } from "./MyStocksTable";
 
 import Firebase from "firebase";
-import config from "./config";
+import config from "./config/config";
 
 // NB: Treat React DS as immutable
 // when updating state, always do a deep copy first
@@ -22,7 +22,7 @@ class App extends Component {
     super(props);
 
     //  https://stackoverflow.com/questions/41939769/firebase-on-app-startup-taking-more-than-3-seconds-to-load-data
-    Firebase.initializeApp(config);
+    Firebase.initializeApp(config.firebase);
 
     this.state = {
       portfolioShares: null,
