@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { Button } from "reactstrap";
+import { Button, Label, FormGroup } from "reactstrap";
+import { AvForm, AvField, AvInput, AvGroup} from 'availity-reactstrap-validation';
 import axios from "axios";
 
 export class AddShare extends Component {
@@ -10,14 +11,13 @@ export class AddShare extends Component {
     super(props);
     this.addShareForm = this.addShareForm.bind(this);
     this.addShare = this.addShare.bind(this);
+    this.cancelAddShare = this.cancelAddShare.bind(this);
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handlePriceChange = this.handlePriceChange.bind(this);
     this.submitOnEnter = this.submitOnEnter.bind(this);
     this.state = {
       action: "none",
-      shareName: "",
-      sharePurchasePrice: 0,
-      sharePurchaseDate: null
+      share: {}
     };
   }
 
@@ -27,43 +27,52 @@ export class AddShare extends Component {
     });
   }
 
-  addShare() {
-    if (this.state.shareName === '' || this.state.sharePurchasePrice === '') {
-      console.log("No share name or price, ignoring.");
-      return;
-    }
-    let d = this.state.sharePurchaseDate;
-    if (d == null || d === "") {
-      d = AddShare.currentDate()
-    }
-    let apiKey = this.props.alphavantage['apiKey'];
-    let searchNameUrl = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=" + this.state.shareName + "&apikey=" + apiKey;
-    let bestMatch = null;
-    axios.get(searchNameUrl).then(res => {
-      console.log(res.data.bestMatches);
-      if (res && res.data && res.data.bestMatches && res.data.bestMatches.length > 0) {
-        bestMatch = res.data.bestMatches[0];
-        console.log("BEST SHARE MATCH = ", bestMatch);
-        return bestMatch
-      }
-      return null
-    }).then(bestMatch => {
-      console.log(
-        "Add share",
-        this.state.shareName,
-        this.state.sharePurchasePrice,
-        d,
-        bestMatch
-      ); //FIXME remove console log
-      this.props.newShare(this.state.shareName, this.state.sharePurchasePrice, d, bestMatch);
-      this.setState({
-        action: "none",
-        shareName: "",
-        sharePurchasePrice: 0,
-        sharePurchaseDate: ""
-      });
-    })
+  cancelAddShare() {
+    this.setState({
+      action: "none"
+    });
+  }
 
+  addShare(event, values) {
+    this.setState({
+      share: values
+    }, () => {
+      if (this.state.share.name === '' || this.state.share.purchasePrice === '') {
+        console.log("No share name or price, ignoring.");
+        return;
+      }
+      let d = this.state.share.purchaseDate;
+      if (d == null || d === "") {
+        d = AddShare.currentDate()
+      }
+      let apiKey = this.props.alphavantage['apiKey'];
+      let searchNameUrl = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=" + this.state.share.name + "&apikey=" + apiKey;
+      let bestMatch = null;
+      axios.get(searchNameUrl).then(res => {
+        console.log(res.data.bestMatches);
+        if (res && res.data && res.data.bestMatches && res.data.bestMatches.length > 0) {
+          bestMatch = res.data.bestMatches[0];
+          console.log("BEST SHARE MATCH = ", bestMatch);
+          return bestMatch
+        } else {
+          console.error("NOT MATCH found for share = ", this.state.share.name);
+        }
+        return null
+      }).then(bestMatch => {
+        console.log(
+          "Add share",
+          this.state.share.name,
+          this.state.share.purchasePrice,
+          d,
+          bestMatch
+        ); //FIXME remove console log
+        this.props.newShare(this.state.share.name, this.state.share.purchasePrice, d, bestMatch);
+        this.setState({
+          action: "none",
+          share: {}
+        });
+      })
+    });
   }
 
   static currentDate() {
@@ -75,14 +84,18 @@ export class AddShare extends Component {
     console.log("Update event", event.target, event.target.value); //FIXME remove console log
     // TODO use search endpoint from https://www.alphavantage.co/documentation/
     this.setState({
-      shareName: event.target.value
+      share: {
+        name: event.target.value
+      }
     });
   }
 
   handlePriceChange(event) {
     console.log("Update event", event.target, event.target.value); //FIXME remove console log
     this.setState({
-      sharePurchasePrice: event.target.value
+      share : {
+        purchasePrice: event.target.value
+      }
     });
   }
 
@@ -102,26 +115,26 @@ export class AddShare extends Component {
           </Button>
         )}
         {this.state.action === "add" && (
-          // FIXME change to form and automatically map form name to DB keys
           <div>
-            <input
-              type="text"
-              value={this.state.shareName}
-              onChange={this.handleNameChange}
-              onKeyDown={this.submitOnEnter}
-            />
-            <input
-              type="text"
-              value={this.state.sharePurchasePrice}
-              onChange={this.handlePriceChange}
-              onKeyDown={this.submitOnEnter}
-            />
-            <Button color="success" onClick={this.addShare}>
-              Confirm
-            </Button>
+            Add share:
+            <AvForm onValidSubmit={this.addShare}>
+              <AvGroup>
+                <Label for="name">Name</Label>
+                <AvInput name="name" id="name" defaultValue={this.state.share.name} onChange={this.handleNameChange} required/>
+              </AvGroup>
+              <AvGroup>
+                <Label for="price">Purchase price</Label>
+                <AvInput name="purchasePrice" id="price" defaultValue={this.state.share.purchasePrice} onChange={this.handlePriceChange} required/>
+              </AvGroup>
+              <FormGroup><Button color="success">Confirm</Button></FormGroup>
+              <Button color="danger" onClick={this.cancelAddShare}>
+                Cancel
+              </Button>
+            </AvForm>
           </div>
         )}
       </div>
     );
   }
+
 }
