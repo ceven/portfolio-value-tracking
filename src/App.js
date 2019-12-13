@@ -6,7 +6,6 @@ import { AddShare } from "./AddShare";
 import { MyStocksTable } from "./MyStocksTable";
 
 import Firebase from "firebase";
-import config from "./config/config";
 
 // NB: Treat React DS as immutable
 // when updating state, always do a deep copy first
@@ -21,18 +20,34 @@ class App extends Component {
   constructor(props) {
     super(props);
 
+    this.config = App.loadEnvConfig();
     //  https://stackoverflow.com/questions/41939769/firebase-on-app-startup-taking-more-than-3-seconds-to-load-data
-    Firebase.initializeApp(config.firebase);
+    Firebase.initializeApp(this.config.firebase);
 
     this.state = {
       portfolioShares: null,
       loading: true
     };
 
-    this.config = config;
 
     this.handleNewShare = this.handleNewShare.bind(this);
     this.removeShare = this.removeShare.bind(this);
+  }
+
+  static loadEnvConfig() {
+    let config = {};
+    config.firebase = {
+      apiKey: process.env.REACT_APP_firebase_apiKey,
+      authDomain: process.env.REACT_APP_firebase_authDomain,
+      databaseURL: process.env.REACT_APP_firebase_databaseURL,
+      projectId: process.env.REACT_APP_firebase_projectId,
+      storageBucket: process.env.REACT_APP_firebase_storageBucket,
+      messagingSenderId: process.env.REACT_APP_firebase_messagingSenderId
+    };
+    config.alphavantage = {
+      apiKey: process.env.REACT_APP_alphavantage_apiKey
+    };
+    return config
   }
 
   writeShareData = () => {

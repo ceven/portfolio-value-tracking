@@ -132,7 +132,6 @@ export class AddShare extends Component {
                   &nbsp;
                   <Button color="danger" onClick={this.cancelAddShare}>Cancel</Button>
                 </FormGroup>
-                {/*<FormGroup></FormGroup>*/}
                 </div>
               </AvForm>
           </div>
