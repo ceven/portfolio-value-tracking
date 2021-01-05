@@ -5,7 +5,7 @@
   "homepage": "http://ceven.github.io/portfolio-value-tracking",
   "dependencies": {
     "availity-reactstrap-validation": "^2.6.1",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bootstrap": "^4.4.1",
     "firebase": "^5.11.1",
     "js-yaml": "latest",
